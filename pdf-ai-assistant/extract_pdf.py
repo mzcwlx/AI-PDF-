@@ -60,6 +60,13 @@ while True:
     for i in range(top_k):
         context += chunks[indices[0][i]] + "\n\n"
 
+    for i in range(top_k):
+        print('='*9)
+        print(f"相关文本相似度: {scores[0][i]:.4f}")
+        print(f"相关文本 {i+1}: {chunks[indices[0][i]]}")
+        print('='*9)
+        
+
 
     # result = []
     # for i, embedding in enumerate(embeddings):
