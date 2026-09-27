@@ -16,8 +16,8 @@ def split_text(text,chunk_size=512,overlap=128):
         start = end - overlap
     return chunks
 
-def cosine_similarity(a, b):
-    return numpy.dot(a, b) / (numpy.linalg.norm(a) * numpy.linalg.norm(b))
+# def cosine_similarity(a, b):
+#     return numpy.dot(a, b) / (numpy.linalg.norm(a) * numpy.linalg.norm(b))
 
 BASE_DIR=Path(__file__).parent
 pdf_path=BASE_DIR / "test.pdf"
@@ -51,10 +51,11 @@ while True:
 
     response = ollama.embed(model="bge-m3", input=query)
     query_embedding = numpy.array(response['embeddings'][0], dtype='float32')
-    faiss.normalize_L2(query_embedding.reshape(-1, 1))
+    query_embedding = query_embedding.reshape(1, -1)
+    faiss.normalize_L2(query_embedding)
 
     top_k=min(5, len(chunks))
-    scores,indices = index.search(query_embedding.reshape(1, -1), top_k)
+    scores,indices = index.search(query_embedding, top_k)
     context=''
     for i in range(top_k):
         context += chunks[indices[0][i]] + "\n\n"
