@@ -1,6 +1,7 @@
 import pymupdf
 import ollama
 import numpy
+from pathlib import Path
 
 def split_text(text,chunk_size=512,overlap=128):
     chunks=[]
@@ -17,7 +18,8 @@ def split_text(text,chunk_size=512,overlap=128):
 def cosine_similarity(a, b):
     return numpy.dot(a, b) / (numpy.linalg.norm(a) * numpy.linalg.norm(b))
 
-pdf_path="test.pdf"
+BASE_DIR=Path(__file__).parent
+pdf_path=BASE_DIR / "test.pdf"
 doc=pymupdf.open(pdf_path)
 full_text=""
 for page_number,page in enumerate(doc):
@@ -45,14 +47,15 @@ for i, embedding in enumerate(embeddings):
 
 result.sort(key=lambda x: x[0], reverse=True)
 
+top_k = min(5, len(result))
+context=''
+for i in range(top_k):
+    context += chunks[result[i][1]]+"\n\n"
+
 prompt =f"""
 你是一个PDF学习助手，能够根据用户提供的PDF文档内容回答问题。
 【PDF相关内容】
-{chunks[result[0][1]]}
-{chunks[result[1][1]]}
-{chunks[result[2][1]]}
-{chunks[result[3][1]]}
-{chunks[result[4][1]]}
+{context}
 
 【用户问题】
 {query}
